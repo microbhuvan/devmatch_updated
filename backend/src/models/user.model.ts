@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true,
         minlength: 2,
-        maxlength: 50
+        maxlength: 50,
+        unique: true,
     },
 
     email: {
@@ -29,50 +30,26 @@ const userSchema = new mongoose.Schema({
         required: true,
     }, 
 
-    about: {
-        type: String,
-        maxlength: 300,
-        default: ""
-    },
-
-    skills: {
-        type: [String],
-        default: [],
-        trim: true,
-        validate(value: string[]){
-            if(value.length > 15){
-                throw new Error("maximum 15 skills allowed");
-            }
-        }
-    },
-
-    age: {
-        type: Number,
-        min: 18
-    },
-
-    gender: {
-        type: String,
-        enum: ["male", "female", "others"],
-        default: "other"
-    },
-
-    photoURL: {
-        type: String,
-        default: "",
-        validate(value: string){
-            if(!validator.isURL(value)){
-                throw new Error("invalid photo url")
-            }
-        }
-    },
 
     isPremium: {
         type: Boolean,
         default: false
     }
 },
-{timestamps: true});
+{
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+
+});
+
+
+userSchema.virtual("profile",{
+    ref: "Profile",
+    localField: "_id",
+    foreignField: "userId",
+    justOne: true
+})
 
 const User = mongoose.model("User", userSchema);
 export default User;
