@@ -51,5 +51,12 @@ userSchema.virtual("profile",{
     justOne: true
 })
 
+userSchema.virtual("session", {
+    ref: "Session",
+    localField: "_id",
+    foreignField: "userId",
+    justOne: true
+})
+
 const User = mongoose.model("User", userSchema);
 export default User;
