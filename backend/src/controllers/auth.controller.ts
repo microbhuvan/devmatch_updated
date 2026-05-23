@@ -4,13 +4,16 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-import Session from "../models/session.model";
+
 import User from "../models/user.model";
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET!;
+import { generateTokens } from "../services/token.service";
+import { createSession } from "../services/session.service";
+import { setAuthCookie } from "../utils/cookie.util";
 
 async function signUp(req:Request , res:Response){
     try{
-        const { username, email, password, isPremium } = req.body;
+        const { username, email, password } = req.body;
 
         if(!username || !email || !password){
             return res.status(400).json({message: "invalid credentials"});
@@ -31,45 +34,20 @@ async function signUp(req:Request , res:Response){
         const user = await User.create({
             username,
             email,
-            password: hashedPassword,
-            isPremium
+            password: hashedPassword
         })
 
         if(!user){
             throw new Error("error saving data");
         }
 
-        const accessToken = await jwt.sign({id:user.id}, JWT_SECRET, {
-            expiresIn: "15m"
-        });
+        const { accessToken, refreshToken } = await generateTokens(user.id);
 
-        const refreshToken = await jwt.sign({id:user.id}, JWT_SECRET, {
-            expiresIn: "7d"
-        });
+        await createSession(req, user.id, refreshToken);
 
-        const hashedRefrehToken = await bcrypt.hash(refreshToken, 10);
-
-        await Session.create({
-            userId: user.id,
-            refreshToken: hashedRefrehToken,
-            userAgent: req.headers["user-agent"],
-            ipAddress: req.ip,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        });
+        await setAuthCookie(res, accessToken, refreshToken);
 
         res.status(201)
-        .cookie("accessToken", accessToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "strict",
-            maxAge: 15 * 60 * 1000
-        })
-        .cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        })
         .json({message: "user added successfully", user: {
             id: user.id,
             username: user.username,
@@ -83,4 +61,43 @@ async function signUp(req:Request , res:Response){
     }
 }
 
-export { signUp };
+async function logIn(req: Request, res:Response){
+    try{
+        const { username, password } = req.body;
+
+        if(!username || !password){
+            return res.status(400).json({message: "invalid credentials"});
+        }
+
+        const user = await User.findOne({username});
+        if(!user){
+            return res.status(404).json({message: "user doesnt exist try again"});
+        }
+
+        const isMatched = await bcrypt.compare(password, user.password);
+        if(!isMatched){
+            return res.status(400).json({message: "invalid credentials"});
+        }
+
+        const { accessToken, refreshToken } = await generateTokens(user.id);
+
+        await createSession(req, user.id, refreshToken);
+
+        await setAuthCookie(res, accessToken, refreshToken);
+
+        res.status(201)
+        .json({message: "user logged in successfully", user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+        }});
+        
+
+    }
+    catch(err: any){
+        return res.status(500).json({message:"server error"});
+    }
+}
+
+
+export { signUp, logIn };
