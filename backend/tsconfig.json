@@ -10,6 +10,11 @@
 
     "esModuleInterop": true,
 
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ]
   }
 }

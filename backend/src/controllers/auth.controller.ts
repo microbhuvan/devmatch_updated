@@ -1,15 +1,18 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
 
 import User from "../models/user.model";
+import Session from "../models/session.model";
 const JWT_SECRET = process.env.JWT_SECRET!;
-import { generateTokens } from "../services/token.service";
+import { generateTokens, verifyToken } from "../services/token.service";
 import { createSession } from "../services/session.service";
 import { setAuthCookie } from "../utils/cookie.util";
+import { IncomingMessage } from "node:http";
 
 async function signUp(req:Request , res:Response){
     try{
@@ -80,6 +83,7 @@ async function logIn(req: Request, res:Response){
         }
 
         const { accessToken, refreshToken } = await generateTokens(user.id);
+        
 
         await createSession(req, user.id, refreshToken);
 
@@ -96,6 +100,29 @@ async function logIn(req: Request, res:Response){
     }
     catch(err: any){
         return res.status(500).json({message:"server error"});
+    }
+}
+
+async function refresh(req: Request, res: Response){
+    try{
+       
+        const incomingRefreshToken = req.cookies.refreshToken;
+
+        if(!incomingRefreshToken){
+            return res.status(401).json({message: "unauthorized"})
+        }
+
+        const payload = jwt.verify(incomingRefreshToken, JWT_SECRET);
+
+        //finding all session of same user of multiple
+        const sessions = await Session.find({
+            userId: payload.id;
+        })
+
+        if()
+    }
+    catch(err: any){
+        return res.status(401).json({message: "refresh unsuccessfull"}); 
     }
 }
 
