@@ -1,12 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express, { Request, Response } from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 const app = express();
 const PORT = process.env.PORT || 3000;
-import cors from "cors";
 
 import authRouter from "./routes/auth.route";
-import cookieParser from "cookie-parser";
+import profileRouter from "./routes/profile.route";
 import connectDB from "./config/db";
 
 app.use(
@@ -23,6 +24,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/profile", profileRouter);
 
 connectDB()
   .then(() => {
