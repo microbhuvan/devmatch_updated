@@ -5,10 +5,11 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { JwtPayload } from "jsonwebtoken";
+import { CustomJwtPayload } from "../types/auth.types";
 
+const JWT_SECRET = process.env.JWT_SECRET!;
 import User from "../models/user.model";
 import Session from "../models/session.model";
-const JWT_SECRET = process.env.JWT_SECRET!;
 import { generateTokens, verifyToken } from "../services/token.service";
 import { createSession } from "../services/session.service";
 import { setAuthCookie } from "../utils/cookie.util";
@@ -108,7 +109,10 @@ async function refresh(req: Request, res: Response) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    const payload = jwt.verify(incomingRefreshToken, JWT_SECRET) as JwtPayload;
+    const payload = jwt.verify(
+      incomingRefreshToken,
+      JWT_SECRET,
+    ) as CustomJwtPayload;
 
     //finding all tokens of same user of multiple devices
     const sessions = await Session.find({
@@ -152,4 +156,63 @@ async function refresh(req: Request, res: Response) {
   }
 }
 
-export { signUp, logIn };
+async function logout(req: Request, res: Response) {
+  try {
+    const { accessToken, refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "unautorized" });
+    }
+
+    const payload = jwt.verify(refreshToken, JWT_SECRET) as CustomJwtPayload;
+    const sessions = await Session.find({ userId: payload.id });
+
+    let matchedSession = null;
+    for (const session of sessions) {
+      const isMatched = await bcrypt.compare(
+        refreshToken,
+        session.refreshToken,
+      );
+
+      if (isMatched) {
+        matchedSession = session;
+        break;
+      }
+    }
+
+    if (!matchedSession) {
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
+      return res.status(401).json({
+        message: "session not found",
+      });
+    }
+
+    await matchedSession.deleteOne();
+
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    return res.status(200).json({ message: "logout successfully" });
+  } catch (err: any) {
+    return res.status(500).json({ message: "server error" });
+  }
+}
+
+async function logoutAll(req: Request, res: Response) {
+  try {
+    await Session.deleteMany({
+      userId: req.user!.id,
+    });
+
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    return res.status(200).json({ message: "logout from all devices" });
+  } catch (err: any) {
+    return res.status(500).json({ message: "server error" });
+  }
+}
+
+export { signUp, logIn, refresh, logout, logoutAll };
