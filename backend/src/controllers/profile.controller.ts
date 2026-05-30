@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Profile from "../models/profile.model";
 import User from "../models/user.model";
 import { validateProfile } from "../validators/profile.validator";
+import { imageUpload, deleteImage } from "../services/cloudinary.service";
 
 async function createProfile(req: Request, res: Response) {
   try {
@@ -112,4 +113,45 @@ async function editProfile(req: Request, res: Response) {
   }
 }
 
-export { createProfile, getMyProfile, getUserProfile, editProfile };
+async function updateProfilePhoto(req: Request, res: Response) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "photo required" });
+    }
+
+    const profile = await Profile.findOne({ userId: req.user!.id });
+
+    if (!profile) {
+      return res.status(404).json({ message: "profile not found" });
+    }
+
+    if (profile.photoPublicId) {
+      await deleteImage(profile.photoPublicId);
+    }
+
+    const result = await imageUpload(req.file.buffer);
+
+    profile.photoURL = result.url;
+    profile.photoPublicId = result.publicId;
+
+    await profile.save();
+
+    return res.status(200).json({
+      message: "photo updated",
+      photoURL: profile.photoURL,
+    });
+  } catch (err: any) {
+    console.log(err.message);
+    return res.status(500).json({ message: "server error" });
+  }
+}
+
+export {
+  createProfile,
+  getMyProfile,
+  getUserProfile,
+  editProfile,
+  updateProfilePhoto,
+};
+
+//missing projection and using virtual both in getUserProfile
