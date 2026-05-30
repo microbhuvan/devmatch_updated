@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 import authRouter from "./routes/auth.route";
 import profileRouter from "./routes/profile.route";
+import requestRouter from "./routes/request.route";
 import connectDB from "./config/db";
 
 app.use(
@@ -25,6 +26,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
+app.use("/request", requestRouter);
 
 connectDB()
   .then(() => {
