@@ -1,18 +1,20 @@
 import express from "express";
-const authRouter = express.Router();
-
 import {
-  signUp,
+  getCurrentUser,
   logIn,
-  refresh,
   logout,
   logoutAll,
+  refresh,
+  signUp,
 } from "../controllers/auth.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
+const authRouter = express.Router();
+
 authRouter.post("/signup", signUp);
 authRouter.post("/login", logIn);
-authRouter.post("/refresh", authMiddleware, refresh);
+authRouter.post("/refresh", refresh);
+authRouter.get("/me", authMiddleware, getCurrentUser);
 authRouter.post("/logout", authMiddleware, logout);
 authRouter.post("/logoutall", authMiddleware, logoutAll);
 

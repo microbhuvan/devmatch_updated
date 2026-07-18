@@ -147,6 +147,7 @@ async function refresh(req: Request, res: Response) {
     const { accessToken, refreshToken } = await generateTokens(payload.id);
 
     await createSession(req, payload.id, refreshToken);
+    await setAuthCookie(res, accessToken, refreshToken);
 
     return res.status(200).json({
       message: "tokens refreshed successfully",
@@ -215,4 +216,25 @@ async function logoutAll(req: Request, res: Response) {
   }
 }
 
-export { signUp, logIn, refresh, logout, logoutAll };
+
+async function getCurrentUser(req: Request, res: Response) {
+  try {
+    const user = await User.findById(req.user!.id).select("username email isPremium");
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    return res.status(200).json({
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isPremium: user.isPremium,
+      },
+    });
+  } catch (err: any) {
+    return res.status(500).json({ message: "server error" });
+  }
+}
+export { signUp, logIn, refresh, logout, logoutAll, getCurrentUser };
