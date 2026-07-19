@@ -13,7 +13,6 @@ export async function createMessage(
     conversationId,
     senderId,
     content: content.trim(),
-    readBy: [senderId],
   });
 
   conversation.lastMessage = message._id;
@@ -37,22 +36,4 @@ export async function getConversationMessages(
     .sort({ createdAt: 1 })
     .skip(skip)
     .limit(limit);
-}
-
-export async function markConversationMessagesAsRead(
-  conversationId: string,
-  userId: string,
-) {
-  await verifyConversationMember(conversationId, userId);
-
-  return Message.updateMany(
-    {
-      conversationId,
-      senderId: { $ne: userId },
-      readBy: { $ne: userId },
-    },
-    {
-      $addToSet: { readBy: userId },
-    },
-  );
 }

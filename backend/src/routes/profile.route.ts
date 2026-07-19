@@ -1,6 +1,7 @@
 import express from "express";
 const profileRouter = express.Router();
 
+import { apiLimiter } from "../middlewares/rateLimiter";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import upload from "../middlewares/upload.middleware";
 import {
@@ -11,6 +12,7 @@ import {
   updateProfilePhoto,
 } from "../controllers/profile.controller";
 
+profileRouter.use(apiLimiter);
 profileRouter.post("/", authMiddleware, createProfile);
 profileRouter.get("/me", authMiddleware, getMyProfile);
 profileRouter.get("/:username", authMiddleware, getUserProfile);

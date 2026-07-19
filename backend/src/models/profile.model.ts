@@ -12,10 +12,14 @@ const profileSchema = new mongoose.Schema(
 
     skills: {
       type: [String],
-      default: [],
+      required: true,
       validate(value: string[]) {
+        if (value.length === 0) {
+          throw new Error("At least one skill is required");
+        }
+
         if (value.length > 15) {
-          throw new Error("maximum skills allowed is 15");
+          throw new Error("Maximum 15 skills");
         }
       },
     },
@@ -26,8 +30,8 @@ const profileSchema = new mongoose.Schema(
 
     gender: {
       type: String,
-      enum: ["male", "female", "other"],
-      default: "other",
+      enum: ["Male", "Female", "Other"],
+      default: "Other",
     },
 
     photoURL: {
@@ -54,7 +58,7 @@ const profileSchema = new mongoose.Schema(
 
     github: {
       type: String,
-      default: "none",
+      default: "",
       validate(value: string) {
         if (value && !validator.isURL(value)) {
           throw new Error("invalid url");
@@ -64,7 +68,7 @@ const profileSchema = new mongoose.Schema(
 
     linkedin: {
       type: String,
-      default: "none",
+      default: "",
       validate(value: string) {
         if (value && !validator.isURL(value)) {
           throw new Error("invalid url");

@@ -4,7 +4,8 @@ import {
   getConversationMessages,
 } from "../services/message.service";
 
-interface ConversationParams {
+export interface ConversationParams {
+  [key: string]: string;
   conversationId: string;
 }
 

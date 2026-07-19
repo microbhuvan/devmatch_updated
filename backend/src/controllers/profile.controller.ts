@@ -115,14 +115,14 @@ async function editProfile(req: Request, res: Response) {
 
 async function updateProfilePhoto(req: Request, res: Response) {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "photo required" });
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ message: "Photo is required" });
     }
 
     const profile = await Profile.findOne({ userId: req.user!.id });
 
     if (!profile) {
-      return res.status(404).json({ message: "profile not found" });
+      return res.status(404).json({ message: "Profile not found" });
     }
 
     if (profile.photoPublicId) {
@@ -137,12 +137,14 @@ async function updateProfilePhoto(req: Request, res: Response) {
     await profile.save();
 
     return res.status(200).json({
-      message: "photo updated",
-      photoURL: profile.photoURL,
+      message: "Photo updated successfully",
+      profile,
     });
   } catch (err: any) {
     console.log(err.message);
-    return res.status(500).json({ message: "server error" });
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 }
 

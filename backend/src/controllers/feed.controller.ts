@@ -14,10 +14,10 @@ async function getFeed(req: Request<{}, {}, {}, FeedQuery>, res: Response) {
     const skip = (page - 1) * limit;
 
     const requests = await ConnectionRequest.find({
-      $or: [{ toUserId: req.user!.id }, { fromUserId: req.user!.id }],
-      status: {
-        $in: ["interested", "accepted"],
-      },
+      $or: [
+        { fromUserId: req.user!.id },
+        { toUserId: req.user!.id },
+      ],
     });
 
     const excludedIds = new Set<string>([req.user!.id]);

@@ -7,7 +7,22 @@ export function imageUpload(
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: "devmatch/profiles",
+        folder: "devmatch_up/profiles",
+
+        transformation: [
+          {
+            width: 400,
+            height: 400,
+            crop: "fill",
+            gravity: "face",
+          },
+          {
+            quality: "auto",
+          },
+          {
+            fetch_format: "auto",
+          },
+        ],
       },
       (error, result) => {
         if (error) {
@@ -15,7 +30,7 @@ export function imageUpload(
         }
 
         if (!result) {
-          return reject(new Error("uploaded failed"));
+          return reject(new Error("Upload failed"));
         }
 
         resolve({

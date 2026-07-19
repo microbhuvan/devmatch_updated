@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import Conversation from "../models/Conversation.model";
 import ConnectionRequest from "../models/ConnectionRequest.model";
 
-interface UserParams {
+export interface UserParams {
+  [key: string]: string;
   userId: string;
 }
 
@@ -66,6 +67,33 @@ export async function getOrCreateConversation(
     console.error(err);
     return res.status(500).json({
       message: "Internal server error",
+    });
+  }
+}
+
+export async function getConversations(req: Request, res: Response) {
+  try {
+    const conversations = await Conversation.find({
+      participants: req.user!.id,
+    })
+      .populate("participants", "username profile")
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          select: "username",
+        },
+      })
+      .sort({
+        lastMessageAt: -1,
+      });
+
+    return res.status(200).json({
+      conversations,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Server Error",
     });
   }
 }

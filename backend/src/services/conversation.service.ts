@@ -21,3 +21,20 @@ export async function verifyConversationMember(
 
   return conversation;
 }
+
+export async function getConversationById(conversationId: string) {
+  return Conversation.findById(conversationId)
+    .populate({
+      path: "participants",
+      select: "username",
+      populate: {
+        path: "profile",
+        select: "photoURL",
+      },
+    })
+    .populate({
+      path: "lastMessage",
+      select: "content createdAt",
+    })
+    .sort({ lastMessageAt: -1 });
+}

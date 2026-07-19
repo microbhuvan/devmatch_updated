@@ -17,7 +17,7 @@ const messageSchema = new Schema(
 
     messageType: {
       type: String,
-      enum: ["text", "image", "video", "file"],
+      enum: ["text", "image", "file"],
       default: "text",
     },
 
@@ -27,17 +27,27 @@ const messageSchema = new Schema(
       trim: true,
     },
 
-    readBy: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-
-    isEdited: {
-      type: Boolean,
-      default: false,
+    fileUrl: {
+      type: String,
+      default: null,
     },
+
+    fileName: {
+      type: String,
+      default: null,
+    },
+
+    // readBy: [
+    //   {
+    //     type: Schema.Types.ObjectId,
+    //     ref: "User",
+    //   },
+    // ],
+
+    // isEdited: {
+    //   type: Boolean,
+    //   default: false,
+    // },
 
     isDeleted: {
       type: Boolean,

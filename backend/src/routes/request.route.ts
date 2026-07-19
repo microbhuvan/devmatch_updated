@@ -6,13 +6,16 @@ import {
   rejectRequest,
   sendRequest,
   sentRequests,
+  ignoreUser,
+  cancelRequest,
+  type UserIdParams,
+  type RequestIdParams,
 } from "../controllers/request.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
-
-type UserIdParams = { userId: string };
-type RequestIdParams = { requestId: string };
+import { apiLimiter } from "../middlewares/rateLimiter";
 
 const requestRouter = express.Router();
+requestRouter.use(apiLimiter);
 
 requestRouter.post<UserIdParams>("/send/:userId", authMiddleware, sendRequest);
 requestRouter.get("/sent", authMiddleware, sentRequests);
@@ -28,5 +31,7 @@ requestRouter.post<RequestIdParams>(
   rejectRequest,
 );
 requestRouter.get("/connections", authMiddleware, connections);
+requestRouter.post<UserIdParams>("/ignore/:userId", authMiddleware, ignoreUser);
+requestRouter.delete<RequestIdParams>("/cancel/:requestId", authMiddleware, cancelRequest);
 
 export default requestRouter;

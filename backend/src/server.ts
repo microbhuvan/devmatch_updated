@@ -19,6 +19,7 @@ import authRouter from "./routes/auth.route";
 import profileRouter from "./routes/profile.route";
 import requestRouter from "./routes/request.route";
 import feedRouter from "./routes/feed.route";
+import helmet from "helmet";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,8 +44,20 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
+
+// Middleware to attach Socket.IO instance to the request object
+app.use((req, res, next) => {
+  (req as any).io = io;
+  next();
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.send("hello from server");

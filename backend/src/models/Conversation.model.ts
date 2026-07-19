@@ -1,5 +1,4 @@
-import { Schema, model, Types } from "mongoose";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const conversationSchema = new mongoose.Schema(
   {
@@ -27,15 +26,11 @@ const conversationSchema = new mongoose.Schema(
     groupName: {
       type: String,
       trim: true,
-    },
-
-    groupAdmin: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      default: null,
     },
 
     lastMessage: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Message",
       default: null,
     },
@@ -51,7 +46,6 @@ const conversationSchema = new mongoose.Schema(
 );
 
 conversationSchema.index({ participants: 1 });
-
 conversationSchema.index({ lastMessageAt: -1 });
 
-export default model("Conversation", conversationSchema);
+export default mongoose.model("Conversation", conversationSchema);

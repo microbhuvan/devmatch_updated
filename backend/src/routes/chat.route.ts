@@ -1,24 +1,46 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware";
-import { getOrCreateConversation } from "../controllers/chat.controller";
-import { getMessages, sendMessage } from "../controllers/message.controller";
+import {
+  getOrCreateConversation,
+  getConversations,
+  type UserParams,
+} from "../controllers/chat.controller";
+import {
+  createGroupConversation,
+  leaveGroupConversation,
+  type LeaveGroupParams,
+} from "../controllers/group.controller";
+import {
+  getMessages,
+  sendMessage,
+  type ConversationParams,
+} from "../controllers/message.controller";
+import { apiLimiter } from "../middlewares/rateLimiter";
 
-const router = Router();
+const chatRouter = Router();
+chatRouter.use(apiLimiter);
 
-router.post<{ userId: string }>(
+chatRouter.post<UserParams>(
   "/conversation/:userId",
   authMiddleware,
   getOrCreateConversation,
 );
-router.get<{ conversationId: string }>(
+chatRouter.get<ConversationParams>(
   "/messages/:conversationId",
   authMiddleware,
   getMessages,
 );
-router.post<{ conversationId: string }>(
+chatRouter.post<ConversationParams>(
   "/messages/:conversationId",
   authMiddleware,
   sendMessage,
 );
+chatRouter.get("/conversations", authMiddleware, getConversations);
+chatRouter.post("/groups", authMiddleware, createGroupConversation);
+chatRouter.post<LeaveGroupParams>(
+  "/groups/:conversationId/leave",
+  authMiddleware,
+  leaveGroupConversation,
+);
 
-export default router;
+export default chatRouter;

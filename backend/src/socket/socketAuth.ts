@@ -1,15 +1,28 @@
 import jwt from "jsonwebtoken";
+import { parseCookie } from "cookie";
 import { AppSocket, CustomJwtPayload } from "../types/socket";
 
 export function socketAuth(socket: AppSocket, next: (error?: Error) => void) {
   try {
-    const token = socket.handshake.auth.token;
+    const cookieHeader = socket.handshake.headers.cookie;
 
-    if (typeof token !== "string") {
+    if (!cookieHeader) {
       return next(new Error("Unauthorized"));
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as CustomJwtPayload;
+    const cookies = parseCookie(cookieHeader);
+
+    const token = cookies.accessToken;
+
+    if (!token) {
+      return next(new Error("Unauthorized"));
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET!,
+    ) as CustomJwtPayload;
+
     socket.data.user = decoded;
 
     next();
@@ -17,3 +30,4 @@ export function socketAuth(socket: AppSocket, next: (error?: Error) => void) {
     next(new Error("Unauthorized"));
   }
 }
+ 

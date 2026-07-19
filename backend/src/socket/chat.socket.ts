@@ -1,10 +1,17 @@
 import { Types } from "mongoose";
-import { verifyConversationMember } from "../services/conversation.service";
-import { createMessage, markConversationMessagesAsRead } from "../services/message.service";
+import {
+  getConversationById,
+  verifyConversationMember,
+} from "../services/conversation.service";
+import { createMessage } from "../services/message.service";
 import { AppServer, AppSocket, ConversationPayload } from "../types/socket";
 
 function conversationRoom(conversationId: string) {
   return `conversation:${conversationId}`;
+}
+
+export function userRoom(userId: string) {
+  return `user:${userId}`;
 }
 
 async function verifyRoomAccess(payload: ConversationPayload, userId: string) {
@@ -32,19 +39,55 @@ export function registerChatEvents(io: AppServer, socket: AppSocket) {
     }
   });
 
-  socket.on("send_message", async ({ conversationId, content }, acknowledgement) => {
-    try {
-      if (typeof content !== "string" || !content.trim()) {
-        throw new Error("Message content is required");
-      }
+  socket.on(
+    "send_message",
+    async ({ conversationId, content }, acknowledgement) => {
+      try {
+        if (!Types.ObjectId.isValid(conversationId)) {
+          throw new Error("Invalid conversation ID");
+        }
 
-      const message = await createMessage(conversationId, userId, content);
-      io.to(conversationRoom(conversationId)).emit("receive_message", message.toObject());
-      acknowledgement?.({ success: true });
-    } catch (error) {
-      acknowledgement?.({ success: false, message: errorMessage(error) });
-    }
-  });
+        await verifyConversationMember(conversationId, userId);
+
+        if (typeof content !== "string" || !content.trim()) {
+          throw new Error("Message content is required");
+        }
+
+        const message = await createMessage(
+          conversationId,
+          userId,
+          content.trim(),
+        );
+
+        io.to(conversationRoom(conversationId)).emit(
+          "receive_message",
+          message.toObject(),
+        );
+
+        // Get updated conversation and notify all participants
+        const updatedConversation = await getConversationById(conversationId);
+        if (updatedConversation) {
+          updatedConversation.participants.forEach((participant) => {
+            const participantId = participant._id.toString();
+            io.to(userRoom(participantId)).emit(
+              "update_conversation",
+              updatedConversation.toObject(),
+            );
+          });
+        }
+
+        acknowledgement?.({
+          success: true,
+          message,
+        });
+      } catch (error) {
+        acknowledgement?.({
+          success: false,
+          message: errorMessage(error),
+        });
+      }
+    },
+  );
 
   socket.on("typing_start", async (payload, acknowledgement) => {
     try {
@@ -62,23 +105,12 @@ export function registerChatEvents(io: AppServer, socket: AppSocket) {
   socket.on("typing_stop", async (payload, acknowledgement) => {
     try {
       await verifyRoomAccess(payload, userId);
-      socket.to(conversationRoom(payload.conversationId)).emit("user_stopped_typing", {
-        conversationId: payload.conversationId,
-        userId,
-      });
-      acknowledgement?.({ success: true });
-    } catch (error) {
-      acknowledgement?.({ success: false, message: errorMessage(error) });
-    }
-  });
-
-  socket.on("mark_messages_read", async (payload, acknowledgement) => {
-    try {
-      await markConversationMessagesAsRead(payload.conversationId, userId);
-      io.to(conversationRoom(payload.conversationId)).emit("messages_read", {
-        conversationId: payload.conversationId,
-        userId,
-      });
+      socket
+        .to(conversationRoom(payload.conversationId))
+        .emit("user_stopped_typing", {
+          conversationId: payload.conversationId,
+          userId,
+        });
       acknowledgement?.({ success: true });
     } catch (error) {
       acknowledgement?.({ success: false, message: errorMessage(error) });
