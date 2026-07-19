@@ -50,7 +50,8 @@ const Navbar = () => {
         <div className="navbar-start">
           <button
             className="btn btn-ghost lg:hidden"
-            onClick={() => setDrawerOpen(true)} aria-label="Open navigation menu"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open navigation menu"
           >
             <FaBars className="text-xl" />
           </button>
@@ -88,7 +89,7 @@ const Navbar = () => {
             </li>
 
             <li>
-              <NavLink to="/chat">Chats</NavLink>
+              <NavLink to="/chats">Chats</NavLink>
             </li>
           </ul>
         </div>
@@ -105,7 +106,11 @@ const Navbar = () => {
             {darkMode ? <FaSun /> : <FaMoon />}
           </button>
           {/* Mobile Notification */}
-          <Link to="/requests" className="btn btn-ghost btn-circle lg:hidden" aria-label="View connection requests">
+          <Link
+            to="/requests"
+            className="btn btn-ghost btn-circle lg:hidden"
+            aria-label="View connection requests"
+          >
             <div className="indicator">
               <FaBell className="text-xl" />
 
@@ -181,7 +186,11 @@ const Navbar = () => {
             <span className="text-xl font-bold">DevMatch</span>
           </div>
 
-          <button className="btn btn-sm btn-circle" onClick={closeDrawer} aria-label="Close navigation menu">
+          <button
+            className="btn btn-sm btn-circle"
+            onClick={closeDrawer}
+            aria-label="Close navigation menu"
+          >
             ✕
           </button>
         </div>

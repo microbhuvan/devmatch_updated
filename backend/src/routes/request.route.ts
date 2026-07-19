@@ -8,6 +8,7 @@ import {
   sentRequests,
   ignoreUser,
   cancelRequest,
+  removeConnection,
   type UserIdParams,
   type RequestIdParams,
 } from "../controllers/request.controller";
@@ -32,6 +33,11 @@ requestRouter.post<RequestIdParams>(
 );
 requestRouter.get("/connections", authMiddleware, connections);
 requestRouter.post<UserIdParams>("/ignore/:userId", authMiddleware, ignoreUser);
-requestRouter.delete<RequestIdParams>("/cancel/:requestId", authMiddleware, cancelRequest);
+requestRouter.delete<RequestIdParams>(
+  "/cancel/:requestId",
+  authMiddleware,
+  cancelRequest,
+);
+requestRouter.delete("/connections/:userId", authMiddleware, removeConnection);
 
 export default requestRouter;

@@ -8,7 +8,7 @@ import Feed from "../pages/Feed";
 import Profile from "../pages/Profile";
 import EditProfile from "../pages/EditProfile";
 import Connections from "../pages/Connections";
-import Chat from "../pages/Chat";
+//import Chat from "../pages/Chat";
 import Upgrade from "../pages/Upgrade";
 import ReceivedRequests from "../pages/ReceivedRequests";
 import SentRequests from "../pages/SentRequests";
@@ -57,9 +57,7 @@ const AppRoutes = () => {
 
               <Route path="/connections" element={<Connections />} />
 
-              <Route path="/chat" element={<Chats />} />
-
-              <Route path="/chat/:conversationId" element={<Chat />} />
+              <Route path="/chats" element={<Chats />} />
 
               <Route path="/upgrade" element={<Upgrade />} />
             </Route>

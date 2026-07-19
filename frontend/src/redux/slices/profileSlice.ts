@@ -15,7 +15,7 @@ export interface Profile {
 
 interface ProfileState {
   profile: Profile | null;
-  hasProfile: boolean;
+  hasProfile: boolean | null;
 }
 
 const initialState: ProfileState = {

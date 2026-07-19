@@ -47,3 +47,9 @@ export async function leaveGroupConversation(conversationId: string) {
 
   return response.data;
 }
+
+export async function getOrCreateConversation(userId: string) {
+  const response = await api.post(`/chat/conversation/${userId}`);
+
+  return response.data;
+}

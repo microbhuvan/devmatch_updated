@@ -24,6 +24,11 @@ authRouter.post("/logoutall", logoutAll);
 authRouter.get("/me", authMiddleware, getCurrentUser);
 authRouter.post("/forgot-password", authLimiter, forgotPassword);
 authRouter.post("/reset-password", authLimiter, resetPassword);
-authRouter.patch("/change-password", authLimiter, changePassword);
+authRouter.patch(
+  "/change-password",
+  authMiddleware,
+  authLimiter,
+  changePassword,
+);
 
 export default authRouter;

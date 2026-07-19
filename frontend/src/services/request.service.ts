@@ -50,3 +50,9 @@ export async function getPendingRequestCount() {
   const response = await api.get("/request/received");
   return response.data.requests.length;
 }
+
+export async function removeConnection(userId: string) {
+  const response = await api.delete(`/request/connections/${userId}`);
+
+  return response.data;
+}

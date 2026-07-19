@@ -141,7 +141,7 @@ async function acceptRequest(req: Request<RequestIdParams>, res: Response) {
       .status(200)
       .json({ message: "connection established successfully", request });
   } catch (err: any) {
-        return res.status(500).json({ message: "server error" });
+    return res.status(500).json({ message: "server error" });
   }
 }
 
@@ -163,7 +163,7 @@ async function rejectRequest(req: Request<RequestIdParams>, res: Response) {
 
     return res.status(200).json({ message: "connection rejected", request });
   } catch (err: any) {
-        return res.status(500).json({ message: "server error" });
+    return res.status(500).json({ message: "server error" });
   }
 }
 
@@ -261,7 +261,6 @@ async function ignoreUser(req: Request<UserIdParams>, res: Response) {
       request: ignoredRequest,
     });
   } catch (err: any) {
-    
     return res.status(500).json({
       message: "Server error",
     });
@@ -298,7 +297,43 @@ async function cancelRequest(req: Request<RequestIdParams>, res: Response) {
       message: "Request cancelled successfully",
     });
   } catch (err: any) {
-    
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+}
+
+async function removeConnection(req: Request, res: Response) {
+  try {
+    const currentUserId = req.user!.id;
+    const otherUserId = req.params.userId;
+
+    const connection = await ConnectionRequest.findOneAndDelete({
+      $or: [
+        {
+          fromUserId: currentUserId,
+          toUserId: otherUserId,
+        },
+        {
+          fromUserId: otherUserId,
+          toUserId: currentUserId,
+        },
+      ],
+      status: "accepted",
+    });
+
+    if (!connection) {
+      return res.status(404).json({
+        message: "Connection not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Connection removed successfully",
+    });
+  } catch (err) {
+    console.error(err);
+
     return res.status(500).json({
       message: "Server error",
     });
@@ -314,4 +349,5 @@ export {
   connections,
   ignoreUser,
   cancelRequest,
+  removeConnection,
 };

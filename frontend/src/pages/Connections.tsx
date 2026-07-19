@@ -57,7 +57,8 @@ const Connections = () => {
           <div className="flex flex-col gap-2">
             <h2 className="text-2xl font-bold">No Connections Yet</h2>
             <p className="text-base-content/60">
-              Connections you make will appear here. Find developers in the Feed!
+              Connections you make will appear here. Find developers in the
+              Feed!
             </p>
           </div>
         </div>
@@ -68,6 +69,11 @@ const Connections = () => {
               key={connection._id}
               connection={connection}
               currentUserId={user?.id ?? ""}
+              onRemove={(connectionId) => {
+                setConnections((prev) =>
+                  prev.filter((connection) => connection._id !== connectionId),
+                );
+              }}
             />
           ))}
         </div>

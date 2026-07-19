@@ -15,10 +15,12 @@ import { useToast } from "../hooks/useToast";
 
 import type { Conversation } from "../types/chat.types";
 import type { Connection } from "../types/connection.types";
+import { useLocation } from "react-router-dom";
 
 const Chats = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const toast = useToast();
+  const location = useLocation();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -40,7 +42,11 @@ const Chats = () => {
       setConversations(conversationsData);
       setConnections(connectionsData.connections);
 
-      if (conversationsData.length > 0 && window.innerWidth >= 640) {
+      const selectedId = location.state?.conversationId;
+
+      if (selectedId) {
+        setSelectedConversationId(selectedId);
+      } else if (conversationsData.length > 0 && window.innerWidth >= 640) {
         setSelectedConversationId(conversationsData[0]._id);
       }
     } catch (error) {

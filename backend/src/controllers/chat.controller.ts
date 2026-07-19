@@ -80,7 +80,7 @@ export async function getConversations(req: Request, res: Response) {
       .populate({
         path: "lastMessage",
         populate: {
-          path: "sender",
+          path: "senderId",
           select: "username",
         },
       })
@@ -92,6 +92,7 @@ export async function getConversations(req: Request, res: Response) {
       conversations,
     });
   } catch (err) {
+    console.error("get conversation error", err);
     return res.status(500).json({
       message: "Server Error",
     });
