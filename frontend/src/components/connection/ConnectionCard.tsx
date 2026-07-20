@@ -68,10 +68,10 @@ const ConnectionCard = ({
             className="h-16 w-16 rounded-full object-cover"
           />
 
-          <div className="flex-1">
-            <h2 className="card-title">{user.username}</h2>
+          <div className="flex-1 min-width-w-0">
+            <h2 className="card-title truncate">{user.username}</h2>
 
-            <p className="text-sm text-base-content/70 truncate">
+            <p className="text-sm text-base-content/70 break-words">
               {profile?.about ?? "No bio available"}
             </p>
 
@@ -85,7 +85,7 @@ const ConnectionCard = ({
               </div>
             )}
 
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="mt-4 flex flex-wrap justify-end gap-2">
               <button onClick={handleChat} className="btn btn-primary btn-sm">
                 <FaComments />
                 Chat

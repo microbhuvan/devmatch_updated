@@ -6,6 +6,9 @@ import { useDispatch } from "react-redux";
 import { login } from "../../services/auth.service";
 import { setUser } from "../../redux/slices/authSlice";
 import { useToast } from "../../hooks/useToast";
+import { getMyProfile } from "../../services/profile.service";
+
+import { setProfile, setNoProfile } from "../../redux/slices/profileSlice";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -34,10 +37,7 @@ const LoginForm = () => {
     const newErrors = { username: "", password: "" };
     let isValid = true;
 
-    if (
-      formData.username.length < 2 ||
-      formData.username.length > 50
-    ) {
+    if (formData.username.length < 2 || formData.username.length > 50) {
       newErrors.username = "Username must be between 2 and 50 characters.";
       isValid = false;
     }
@@ -61,11 +61,23 @@ const LoginForm = () => {
     try {
       setLoading(true);
       const data = await login(formData);
+
       dispatch(setUser(data.user));
+
+      try {
+        const profileData = await getMyProfile();
+        dispatch(setProfile(profileData.profile));
+      } catch {
+        dispatch(setNoProfile());
+      }
+
       toast.success(`Welcome back, ${data.user.username}!`);
       navigate("/feed");
     } catch (err: unknown) {
-      const message = (axios.isAxiosError<{ message?: string }>(err) ? err.response?.data?.message : undefined) || "Login failed. Please check your credentials.";
+      const message =
+        (axios.isAxiosError<{ message?: string }>(err)
+          ? err.response?.data?.message
+          : undefined) || "Login failed. Please check your credentials.";
       toast.error(message);
     } finally {
       setLoading(false);
@@ -75,7 +87,9 @@ const LoginForm = () => {
   return (
     <div className="w-full max-w-md rounded-xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-8">
       <h1 className="mb-2 text-3xl font-bold">Welcome Back</h1>
-      <p className="mb-8 text-base-content/60">Login to continue to DevMatch.</p>
+      <p className="mb-8 text-base-content/60">
+        Login to continue to DevMatch.
+      </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="form-control">
@@ -93,11 +107,13 @@ const LoginForm = () => {
             required
             autoFocus
           />
-          {errors.username && <p className="mt-1 text-xs text-error">{errors.username}</p>}
+          {errors.username && (
+            <p className="mt-1 text-xs text-error">{errors.username}</p>
+          )}
         </div>
 
         <div className="form-control">
-          <label htmlFor="password"  className="label">
+          <label htmlFor="password" className="label">
             <span className="label-text">Password</span>
           </label>
           <input
@@ -110,7 +126,9 @@ const LoginForm = () => {
             className={`input input-bordered w-full ${errors.password ? "input-error" : ""}`}
             required
           />
-           {errors.password && <p className="mt-1 text-xs text-error">{errors.password}</p>}
+          {errors.password && (
+            <p className="mt-1 text-xs text-error">{errors.password}</p>
+          )}
         </div>
 
         <div className="flex justify-end">
@@ -122,10 +140,7 @@ const LoginForm = () => {
           </Link>
         </div>
 
-        <button
-          disabled={loading}
-          className="btn btn-primary w-full"
-        >
+        <button disabled={loading} className="btn btn-primary w-full">
           {loading ? <span className="loading loading-spinner" /> : "Login"}
         </button>
       </form>

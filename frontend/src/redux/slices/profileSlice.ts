@@ -20,7 +20,7 @@ interface ProfileState {
 
 const initialState: ProfileState = {
   profile: null,
-  hasProfile: false,
+  hasProfile: null,
 };
 
 const profileSlice = createSlice({
@@ -32,9 +32,14 @@ const profileSlice = createSlice({
       state.hasProfile = true;
     },
 
-    clearProfile(state) {
+    setNoProfile(state) {
       state.profile = null;
       state.hasProfile = false;
+    },
+
+    clearProfile(state) {
+      state.profile = null;
+      state.hasProfile = null;
     },
 
     updatePhoto(state, action: PayloadAction<string>) {
@@ -45,6 +50,7 @@ const profileSlice = createSlice({
   },
 });
 
-export const { setProfile, clearProfile, updatePhoto } = profileSlice.actions;
+export const { setProfile, setNoProfile, clearProfile, updatePhoto } =
+  profileSlice.actions;
 
 export default profileSlice.reducer;

@@ -20,6 +20,8 @@ import profileRouter from "./routes/profile.route";
 import requestRouter from "./routes/request.route";
 import feedRouter from "./routes/feed.route";
 import helmet from "helmet";
+import paymentRouter from "./routes/payment.route";
+import searchRouter from "./routes/search.route";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -68,6 +70,8 @@ app.use("/profile", profileRouter);
 app.use("/request", requestRouter);
 app.use("/feed", feedRouter);
 app.use("/chat", chatRouter);
+app.use("/payment", paymentRouter);
+app.use("/search", searchRouter);
 
 connectDB()
   .then(() => {

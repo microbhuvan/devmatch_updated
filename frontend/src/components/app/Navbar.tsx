@@ -18,6 +18,8 @@ import { logout as logoutService } from "../../services/auth.service";
 import { logout as logoutAction } from "../../redux/slices/authSlice";
 import { toggleTheme } from "../../redux/slices/themeSlice";
 import type { RootState } from "../../redux/store";
+import { clearProfile } from "../../redux/slices/profileSlice";
+import { logoutAll as logoutAllService } from "../../services/auth.service";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -30,6 +32,8 @@ const Navbar = () => {
   );
   const darkMode = useSelector((state: RootState) => state.theme.darkMode);
 
+  const user = useSelector((state: RootState) => state.auth.user);
+
   const handleLogout = async () => {
     try {
       await logoutService();
@@ -37,6 +41,19 @@ const Navbar = () => {
       console.error(err);
     } finally {
       dispatch(logoutAction());
+      dispatch(clearProfile());
+      navigate("/login");
+    }
+  };
+
+  const handleLogoutAll = async () => {
+    try {
+      await logoutAllService();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      dispatch(logoutAction());
+      dispatch(clearProfile());
       navigate("/login");
     }
   };
@@ -58,7 +75,8 @@ const Navbar = () => {
 
           <Link to="/feed" className="flex items-center gap-2">
             <FaCode className="text-2xl text-primary" />
-            <span className="text-xl font-bold">DevMatch</span>
+
+            <span className="hidden sm:inline text-xl font-bold">DevMatch</span>
           </Link>
         </div>
 
@@ -90,6 +108,9 @@ const Navbar = () => {
 
             <li>
               <NavLink to="/chats">Chats</NavLink>
+            </li>
+            <li>
+              <NavLink to="/search">Search</NavLink>
             </li>
           </ul>
         </div>
@@ -124,9 +145,20 @@ const Navbar = () => {
 
           {/* Account Dropdown */}
           <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-primary">
-              Account
-            </label>
+            <>
+              {/* Desktop */}
+              <label tabIndex={0} className="btn btn-primary hidden lg:flex">
+                Account
+              </label>
+
+              {/* Mobile */}
+              <label
+                tabIndex={0}
+                className="btn btn-circle btn-primary lg:hidden"
+              >
+                <FaUser />
+              </label>
+            </>
 
             <ul
               tabIndex={0}
@@ -146,12 +178,14 @@ const Navbar = () => {
                 </Link>
               </li>
 
-              <li>
-                <Link to="/upgrade">
-                  <FaCrown />
-                  Upgrade
-                </Link>
-              </li>
+              {!user?.isPremium && (
+                <li>
+                  <Link to="/upgrade">
+                    <FaCrown />
+                    Upgrade
+                  </Link>
+                </li>
+              )}
 
               <div className="divider my-1" />
 
@@ -159,6 +193,13 @@ const Navbar = () => {
                 <button onClick={handleLogout}>
                   <FaRightFromBracket />
                   Logout
+                </button>
+              </li>
+
+              <li>
+                <button onClick={handleLogoutAll}>
+                  <FaRightFromBracket />
+                  Logout All Devices
                 </button>
               </li>
             </ul>
@@ -224,8 +265,14 @@ const Navbar = () => {
           </li>
 
           <li>
-            <NavLink to="/chat" onClick={closeDrawer}>
+            <NavLink to="/chats" onClick={closeDrawer}>
               Chats
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink to="/search" onClick={closeDrawer}>
+              Search
             </NavLink>
           </li>
 
@@ -243,11 +290,14 @@ const Navbar = () => {
             </NavLink>
           </li>
 
-          <li>
-            <NavLink to="/upgrade" onClick={closeDrawer}>
-              Upgrade
-            </NavLink>
-          </li>
+          {!user?.isPremium && (
+            <li>
+              <Link to="/upgrade">
+                <FaCrown />
+                Upgrade
+              </Link>
+            </li>
+          )}
 
           <li>
             <button

@@ -208,7 +208,7 @@ const Chat = ({ conversation, onBack }: ChatProps) => {
                   </div>
                 )}
                 <div
-                  className={`chat-bubble ${
+                  className={`chat-bubble max-w-xs sm:max-w-md md:max-w-lg break-words whitespace-pre-wrap ${
                     isMine ? "chat-bubble-primary" : ""
                   }`}
                 >
@@ -234,10 +234,10 @@ const Chat = ({ conversation, onBack }: ChatProps) => {
         <div ref={bottomRef} />
       </div>
 
-      <div className="flex gap-2 border-t border-base-300 p-3 sm:p-4">
+      <div className="flex items-end gap-2 border-t border-base-300 p-3 sm:p-4 min-w-0">
         <input
           type="text"
-          className="input input-bordered min-w-0 flex-1"
+          className="input input-bordered flex-1 min-w-0"
           placeholder="Type a message..."
           value={input}
           onChange={(e) => {

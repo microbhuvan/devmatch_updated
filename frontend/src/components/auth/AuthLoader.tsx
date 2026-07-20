@@ -4,9 +4,14 @@ import { socket } from "../../socket/socket";
 
 import { getCurrentUser } from "../../services/auth.service";
 import { getMyProfile } from "../../services/profile.service";
-
+import { logout } from "../../redux/slices/authSlice";
 import { setUser } from "../../redux/slices/authSlice";
-import { setProfile } from "../../redux/slices/profileSlice";
+
+import {
+  setProfile,
+  setNoProfile,
+  clearProfile,
+} from "../../redux/slices/profileSlice";
 
 interface Props {
   children: React.ReactNode;
@@ -29,15 +34,15 @@ const AuthLoader = ({ children }: Props) => {
         socket.connect();
 
         try {
-          // Restore profile if it exists
           const profileData = await getMyProfile();
 
           dispatch(setProfile(profileData.profile));
         } catch {
-          // User is authenticated but profile doesn't exist yet.
+          dispatch(setNoProfile());
         }
       } catch {
-        // User is not authenticated.
+        dispatch(logout());
+        dispatch(clearProfile());
       } finally {
         setLoading(false);
       }

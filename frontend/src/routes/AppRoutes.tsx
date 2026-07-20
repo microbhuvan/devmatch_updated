@@ -20,6 +20,7 @@ import Chats from "../pages/Chats";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import ChangePassword from "../pages/ChangePassword";
+import Search from "../pages/Search";
 
 const AppRoutes = () => {
   return (
@@ -58,6 +59,7 @@ const AppRoutes = () => {
               <Route path="/connections" element={<Connections />} />
 
               <Route path="/chats" element={<Chats />} />
+              <Route path="/search" element={<Search />} />
 
               <Route path="/upgrade" element={<Upgrade />} />
             </Route>
