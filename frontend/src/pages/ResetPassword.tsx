@@ -1,13 +1,13 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { resetPassword } from "../services/auth.service";
 import { useToast } from "../hooks/useToast";
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+
   const toast = useToast();
 
   const [token, setToken] = useState<string | null>(null);
@@ -72,9 +72,7 @@ const ResetPassword = () => {
       return (
         <div className="text-center">
           <FaExclamationTriangle className="mx-auto mb-4 text-5xl text-error" />
-          <h2 className="card-title justify-center text-2xl">
-            Invalid Link
-          </h2>
+          <h2 className="card-title justify-center text-2xl">Invalid Link</h2>
           <p className="my-4">
             The password reset link is missing or invalid. Please request a new
             one.
@@ -93,9 +91,7 @@ const ResetPassword = () => {
           <h2 className="card-title justify-center text-2xl">
             Password Reset!
           </h2>
-          <p className="my-4">
-            Your password has been changed successfully.
-          </p>
+          <p className="my-4">Your password has been changed successfully.</p>
           <Link to="/login" className="btn btn-primary btn-block">
             Proceed to Login
           </Link>
@@ -124,7 +120,9 @@ const ResetPassword = () => {
               required
               autoFocus
             />
-            {errors.newPassword && <p className="mt-1 text-xs text-error">{errors.newPassword}</p>}
+            {errors.newPassword && (
+              <p className="mt-1 text-xs text-error">{errors.newPassword}</p>
+            )}
           </div>
 
           <div className="form-control">
@@ -140,7 +138,11 @@ const ResetPassword = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-            {errors.confirmPassword && <p className="mt-1 text-xs text-error">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && (
+              <p className="mt-1 text-xs text-error">
+                {errors.confirmPassword}
+              </p>
+            )}
           </div>
 
           <button disabled={loading} className="btn btn-primary w-full">
@@ -158,9 +160,7 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex justify-center items-center bg-base-200 p-4">
       <div className="card bg-base-100 shadow-xl w-full max-w-md">
-        <div className="card-body">
-          {renderContent()}
-        </div>
+        <div className="card-body">{renderContent()}</div>
       </div>
     </div>
   );

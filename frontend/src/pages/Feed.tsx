@@ -20,28 +20,31 @@ const Feed = () => {
 
   const toast = useToast();
 
-  const fetchFeed = useCallback(async (pageNumber: number) => {
-    if (!hasMore && pageNumber > 1) return;
+  const fetchFeed = useCallback(
+    async (pageNumber: number) => {
+      if (!hasMore && pageNumber > 1) return;
 
-    setLoading(true);
-    try {
-      const data = await getFeed(pageNumber);
-      if (data.users.length === 0) {
-        setHasMore(false);
-      } else {
-        setUsers((prev) => {
-          // Prevent adding duplicate users
-          const existingIds = new Set(prev.map(u => u._id));
-          const newUsers = data.users.filter(u => !existingIds.has(u._id));
-          return [...prev, ...newUsers];
-        });
+      setLoading(true);
+      try {
+        const data = await getFeed(pageNumber);
+        if (data.users.length === 0) {
+          setHasMore(false);
+        } else {
+          setUsers((prev) => {
+            // Prevent adding duplicate users
+            const existingIds = new Set(prev.map((u) => u._id));
+            const newUsers = data.users.filter((u) => !existingIds.has(u._id));
+            return [...prev, ...newUsers];
+          });
+        }
+      } catch (err) {
+        toast.error("Unable to load developers. Please try again later.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      toast.error("Unable to load developers. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  }, [hasMore, toast]);
+    },
+    [hasMore, toast],
+  );
 
   useEffect(() => {
     fetchFeed(1);
@@ -53,7 +56,7 @@ const Feed = () => {
     setTimeout(() => {
       setUsers((prev) => prev.slice(1));
       setIsAnimating(false);
-      
+
       // Load more users if we are near the end of the current list
       if (users.length <= 3 && hasMore && !loading) {
         const nextPage = page + 1;
@@ -89,7 +92,7 @@ const Feed = () => {
 
   if (loading && users.length === 0) {
     return (
-      <div className="relative mx-auto mt-4 max-w-xl sm:mt-10 h-[600px]">
+      <div className="relative mx-auto mt-4 max-w-xl sm:mt-10 h-150">
         <FeedCardSkeleton />
       </div>
     );
@@ -110,8 +113,11 @@ const Feed = () => {
   }
 
   return (
-    <div className="relative mx-auto mt-4 h-[600px] max-w-xl sm:mt-10">
-      {users.slice(0, 3).reverse().map((user, index) => {
+    <div className="relative mx-auto mt-4 h-150 max-w-xl sm:mt-10">
+      {users
+        .slice(0, 3)
+        .reverse()
+        .map((user, index) => {
           const isTopCard = index === users.slice(0, 3).length - 1;
           return (
             <div
@@ -121,7 +127,7 @@ const Feed = () => {
                 transform: `scale(${1 - (users.length - 1 - index) * 0.05}) translateY(${(users.length - 1 - index) * -10}px)`,
                 zIndex: index,
                 opacity: isAnimating && isTopCard ? 0 : 1,
-                transformOrigin: 'center bottom',
+                transformOrigin: "center bottom",
               }}
             >
               <FeedCard
@@ -139,4 +145,3 @@ const Feed = () => {
 };
 
 export default Feed;
-

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import { FaArrowLeft, FaPaperPlane } from "react-icons/fa";
@@ -26,7 +26,7 @@ const Chat = ({ conversation, onBack }: ChatProps) => {
   const [isTyping, setIsTyping] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const conversationId = conversation._id;
 
   // Join and leave conversation rooms
@@ -208,7 +208,7 @@ const Chat = ({ conversation, onBack }: ChatProps) => {
                   </div>
                 )}
                 <div
-                  className={`chat-bubble max-w-xs sm:max-w-md md:max-w-lg break-words whitespace-pre-wrap ${
+                  className={`chat-bubble max-w-xs sm:max-w-md md:max-w-lg wrap-break-word whitespace-pre-wrap ${
                     isMine ? "chat-bubble-primary" : ""
                   }`}
                 >
