@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const chat_controller_1 = require("../controllers/chat.controller");
+const group_controller_1 = require("../controllers/group.controller");
+const message_controller_1 = require("../controllers/message.controller");
+const rateLimiter_1 = require("../middlewares/rateLimiter");
+const chatRouter = (0, express_1.Router)();
+chatRouter.use(rateLimiter_1.apiLimiter);
+chatRouter.post("/conversation/:userId", auth_middleware_1.authMiddleware, chat_controller_1.getOrCreateConversation);
+chatRouter.get("/messages/:conversationId", auth_middleware_1.authMiddleware, message_controller_1.getMessages);
+chatRouter.post("/messages/:conversationId", auth_middleware_1.authMiddleware, message_controller_1.sendMessage);
+chatRouter.get("/conversations", auth_middleware_1.authMiddleware, chat_controller_1.getConversations);
+chatRouter.post("/groups", auth_middleware_1.authMiddleware, group_controller_1.createGroupConversation);
+chatRouter.post("/groups/:conversationId/leave", auth_middleware_1.authMiddleware, group_controller_1.leaveGroupConversation);
+exports.default = chatRouter;

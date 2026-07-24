@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const request_controller_1 = require("../controllers/request.controller");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const rateLimiter_1 = require("../middlewares/rateLimiter");
+const requestRouter = express_1.default.Router();
+requestRouter.use(rateLimiter_1.apiLimiter);
+requestRouter.post("/send/:userId", auth_middleware_1.authMiddleware, request_controller_1.sendRequest);
+requestRouter.get("/sent", auth_middleware_1.authMiddleware, request_controller_1.sentRequests);
+requestRouter.get("/received", auth_middleware_1.authMiddleware, request_controller_1.receivedRequests);
+requestRouter.post("/request/review/accepted/:requestId", auth_middleware_1.authMiddleware, request_controller_1.acceptRequest);
+requestRouter.post("/request/review/rejected/:requestId", auth_middleware_1.authMiddleware, request_controller_1.rejectRequest);
+requestRouter.get("/connections", auth_middleware_1.authMiddleware, request_controller_1.connections);
+requestRouter.post("/ignore/:userId", auth_middleware_1.authMiddleware, request_controller_1.ignoreUser);
+requestRouter.delete("/cancel/:requestId", auth_middleware_1.authMiddleware, request_controller_1.cancelRequest);
+requestRouter.delete("/connections/:userId", auth_middleware_1.authMiddleware, request_controller_1.removeConnection);
+exports.default = requestRouter;

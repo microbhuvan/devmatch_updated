@@ -33,7 +33,7 @@ const io: AppServer = new Server<
   SocketData
 >(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   },
 });
@@ -42,7 +42,7 @@ initializeSocket(io);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   }),
 );

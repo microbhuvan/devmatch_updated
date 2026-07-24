@@ -1,6 +1,8 @@
-import type { Conversation, Message } from "../../shared/types"; // or your actual types
 import { JwtPayload } from "jsonwebtoken";
+import { Types } from "mongoose";
 import { Server, Socket } from "socket.io";
+
+type Id = string | Types.ObjectId;
 
 export interface CustomJwtPayload extends JwtPayload {
   id: string;
@@ -9,6 +11,40 @@ export interface CustomJwtPayload extends JwtPayload {
 export interface SocketData {
   user: CustomJwtPayload;
 }
+
+/* ---------- Shared Models ---------- */
+
+export interface UserSummary {
+  _id: Id;
+  username: string;
+  profile?: string;
+}
+
+export interface Message {
+  _id: Id;
+  conversationId: Id;
+  senderId: UserSummary | Id;
+  messageType: "text" | "image" | "file";
+  content: string;
+  fileUrl?: string | null;
+  fileName?: string | null;
+  isDeleted: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface Conversation {
+  _id: Id;
+  participants: (UserSummary | Id)[];
+  isGroup: boolean;
+  groupName?: string | null;
+  lastMessage?: Message | Id | null;
+  lastMessageAt?: Date | string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+/* ---------- Payloads ---------- */
 
 export interface ConversationPayload {
   conversationId: string;
@@ -23,29 +59,36 @@ export interface SocketAcknowledgement {
   message?: unknown;
 }
 
+export interface TypingPayload {
+  conversationId: string;
+  userId: string;
+}
+
+/* ---------- Client -> Server ---------- */
+
 export interface ClientToServerEvents {
   join_conversation: (
     payload: ConversationPayload,
     acknowledgement?: (result: SocketAcknowledgement) => void,
   ) => void;
+
   send_message: (
     payload: SendMessagePayload,
     acknowledgement?: (result: SocketAcknowledgement) => void,
   ) => void;
+
   typing_start: (
     payload: ConversationPayload,
     acknowledgement?: (result: SocketAcknowledgement) => void,
   ) => void;
+
   typing_stop: (
     payload: ConversationPayload,
     acknowledgement?: (result: SocketAcknowledgement) => void,
   ) => void;
 }
 
-export interface TypingPayload {
-  conversationId: string;
-  userId: string;
-}
+/* ---------- Server -> Client ---------- */
 
 export interface ServerToClientEvents {
   receive_message: (message: Message) => void;
@@ -67,6 +110,7 @@ export type AppSocket = Socket<
   InterServerEvents,
   SocketData
 >;
+
 export type AppServer = Server<
   ClientToServerEvents,
   ServerToClientEvents,
