@@ -8,7 +8,7 @@ const Hero = () => {
 
       <div className="flex-1">
         <span className="rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-          Built for Developers
+          Built for Developers CI/CD TEST
         </span>
 
         <h1 className="mt-6 text-5xl font-extrabold leading-tight lg:text-7xl">
@@ -58,7 +58,9 @@ const Hero = () => {
             <div>
               <h3 className="font-semibold">Rahul Sharma</h3>
 
-              <p className="text-sm text-base-content/60">MERN • React • Node.js</p>
+              <p className="text-sm text-base-content/60">
+                MERN • React • Node.js
+              </p>
             </div>
           </div>
 
