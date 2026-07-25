@@ -24,6 +24,7 @@ import paymentRouter from "./routes/payment.route";
 import searchRouter from "./routes/search.route";
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io: AppServer = new Server<
@@ -65,13 +66,13 @@ app.get("/", (req: Request, res: Response) => {
   res.send("hello from server");
 });
 
-app.use("/auth", authRouter);
-app.use("/profile", profileRouter);
-app.use("/request", requestRouter);
-app.use("/feed", feedRouter);
-app.use("/chat", chatRouter);
-app.use("/payment", paymentRouter);
-app.use("/search", searchRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/profile", profileRouter);
+app.use("/api/request", requestRouter);
+app.use("/api/feed", feedRouter);
+app.use("/api/chat", chatRouter);
+app.use("/api/payment", paymentRouter);
+app.use("/api/search", searchRouter);
 
 connectDB()
   .then(() => {

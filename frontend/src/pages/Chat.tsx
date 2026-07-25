@@ -30,14 +30,25 @@ const Chat = ({ conversation, onBack }: ChatProps) => {
   const conversationId = conversation._id;
 
   // Join and leave conversation rooms
+  const [joined, setJoined] = useState(false);
+
   useEffect(() => {
     if (!conversationId) return;
-    socket.emit("join_conversation", { conversationId });
-    return () => {
-      // The backend handles cleanup on disconnect, no need to explicitly leave
-    };
-  }, [conversationId]);
 
+    setJoined(false);
+
+    socket.emit(
+      "join_conversation",
+      { conversationId },
+      (response: { success: any }) => {
+        if (response.success) {
+          setJoined(true);
+        } else {
+          toast.error("Unable to join conversation");
+        }
+      },
+    );
+  }, [conversationId]);
   // Load initial messages
   useEffect(() => {
     const loadMessages = async () => {
@@ -125,14 +136,18 @@ const Chat = ({ conversation, onBack }: ChatProps) => {
 
   const handleSend = () => {
     if (!input.trim() || sending) return;
+    if (!joined) return;
 
     setSending(true);
 
     socket.emit(
       "send_message",
       { conversationId, content: input.trim() },
-      (response: { success: boolean; message?: string }) => {
+      (response: { success: any; message: any }) => {
+        console.log("SEND ACK:", response);
+
         setSending(false);
+
         if (response.success) {
           setInput("");
         } else {
