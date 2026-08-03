@@ -92,7 +92,7 @@ const Feed = () => {
 
   if (loading && users.length === 0) {
     return (
-      <div className="relative mx-auto mt-4 max-w-xl sm:mt-10 h-150">
+      <div className="relative mx-auto mt-4 min-h-[38rem] max-w-xl">
         <FeedCardSkeleton />
       </div>
     );

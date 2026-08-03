@@ -64,7 +64,7 @@ export interface TypingPayload {
   userId: string;
 }
 
-/* ---------- Client -> Server ---------- */
+// Client -> Server
 
 export interface ClientToServerEvents {
   join_conversation: (

@@ -125,9 +125,7 @@ async function updateProfilePhoto(req: Request, res: Response) {
       return res.status(404).json({ message: "Profile not found" });
     }
 
-    if (profile.photoPublicId) {
-      await deleteImage(profile.photoPublicId);
-    }
+    const oldPublicId = profile.photoPublicId;
 
     const result = await imageUpload(req.file.buffer);
 
@@ -135,6 +133,10 @@ async function updateProfilePhoto(req: Request, res: Response) {
     profile.photoPublicId = result.publicId;
 
     await profile.save();
+
+    if (oldPublicId) {
+      await deleteImage(oldPublicId);
+    }
 
     return res.status(200).json({
       message: "Photo updated successfully",

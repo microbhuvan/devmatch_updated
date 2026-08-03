@@ -155,11 +155,11 @@ async function refresh(req: Request, res: Response) {
     await createSession(req, payload.id, refreshToken);
     await setAuthCookie(res, accessToken, refreshToken);
 
-    console.log("Incoming refresh token:", !!req.cookies.refreshToken);
+    // console.log("Incoming refresh token:", !!req.cookies.refreshToken);
 
-    console.log("Sessions found:", sessions.length);
+    // console.log("Sessions found:", sessions.length);
 
-    console.log("Matched session:", !!matchedSession);
+    // console.log("Matched session:", !!matchedSession);
 
     return res.status(200).json({
       message: "tokens refreshed successfully",
@@ -260,7 +260,7 @@ async function forgotPassword(req: Request, res: Response) {
         message: "email is required",
       });
     }
-    console.log(email);
+    //console.log(email);
 
     const user = await User.findOne({ email });
 
@@ -270,7 +270,7 @@ async function forgotPassword(req: Request, res: Response) {
       });
     }
 
-    console.log("before delete many");
+    //console.log("before delete many");
     // Only one active reset request per user
     await PasswordResetToken.deleteMany({
       userId: user._id,
@@ -283,7 +283,7 @@ async function forgotPassword(req: Request, res: Response) {
       .update(rawToken)
       .digest("hex");
 
-    console.log("before password reset token");
+    //console.log("before password reset token");
 
     await PasswordResetToken.create({
       userId: user._id,
@@ -293,7 +293,7 @@ async function forgotPassword(req: Request, res: Response) {
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`;
 
-    console.log("before sending email");
+    //console.log("before sending email");
     const resp = await resend?.emails.send({
       from: "DevMatch <noreply@devmatch.co.in>",
       to: email,
@@ -312,8 +312,8 @@ async function forgotPassword(req: Request, res: Response) {
         <p>If you didn't request this, simply ignore this email.</p>
       `,
     });
-    console.log("we are reaching till here");
-    console.log(resp);
+    //console.log("we are reaching till here");
+    //console.log(resp);
 
     return res.status(200).json({
       message:

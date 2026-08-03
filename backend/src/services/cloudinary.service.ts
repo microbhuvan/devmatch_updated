@@ -5,6 +5,7 @@ export function imageUpload(
   buffer: Buffer,
 ): Promise<{ url: string; publicId: string }> {
   return new Promise((resolve, reject) => {
+    //write stream
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: "devmatch_up/profiles",
@@ -40,7 +41,9 @@ export function imageUpload(
       },
     );
 
+    //buffer ---> readable stream
     streamifier.createReadStream(buffer).pipe(uploadStream);
+    //node connects read stream to write stream (pipe)
   });
 }
 

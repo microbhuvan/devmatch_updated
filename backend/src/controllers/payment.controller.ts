@@ -67,6 +67,12 @@ export async function verifyPayment(req: Request, res: Response) {
       });
     }
 
+    if (payment.userId.toString() !== userId) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
+
     // Idempotency
     if (payment.verified) {
       return res.status(200).json({

@@ -8,7 +8,13 @@ interface FeedCardProps {
   isTopCard: boolean;
 }
 
-const FeedCard = ({ user, onConnect, onIgnore, loading = false, isTopCard }: FeedCardProps) => {
+const FeedCard = ({
+  user,
+  onConnect,
+  onIgnore,
+  loading = false,
+  isTopCard,
+}: FeedCardProps) => {
   return (
     <div
       className={`rounded-xl border border-base-300 bg-base-100 p-5 shadow-xl sm:p-6 h-full flex flex-col ${!isTopCard ? "pointer-events-none" : ""}`}
@@ -17,7 +23,10 @@ const FeedCard = ({ user, onConnect, onIgnore, loading = false, isTopCard }: Fee
         <div className="avatar">
           <div className="w-32 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100">
             <img
-              src={user.profile?.photoURL ?? "https://placehold.co/150x150?text=Profile"}
+              src={
+                user.profile?.photoURL ??
+                "https://placehold.co/150x150?text=Profile"
+              }
               alt={`Profile photo of ${user.username}`}
             />
           </div>
@@ -25,7 +34,7 @@ const FeedCard = ({ user, onConnect, onIgnore, loading = false, isTopCard }: Fee
 
         <h2 className="mt-4 text-2xl font-bold">{user.username}</h2>
 
-        <p className="mt-2 h-20 text-base-content/70 overflow-hidden">
+        <p className="mt-2 min-h-[5rem] text-base-content/70 line-clamp-4">
           {user.profile?.about || "No bio yet."}
         </p>
 
@@ -36,6 +45,32 @@ const FeedCard = ({ user, onConnect, onIgnore, loading = false, isTopCard }: Fee
             </span>
           ))}
         </div>
+
+        {(user.profile?.github || user.profile?.linkedin) && (
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            {user.profile?.github && (
+              <a
+                href={user.profile.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline btn-sm"
+              >
+                GitHub
+              </a>
+            )}
+
+            {user.profile?.linkedin && (
+              <a
+                href={user.profile.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline btn-sm"
+              >
+                LinkedIn
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-auto flex w-full flex-col gap-3 pt-4 sm:flex-row">
@@ -54,7 +89,7 @@ const FeedCard = ({ user, onConnect, onIgnore, loading = false, isTopCard }: Fee
           className="btn btn-primary flex-1"
           aria-label={`Connect with ${user.username}`}
         >
-          {loading ? <span className="loading loading-spinner"/> : "Connect"}
+          {loading ? <span className="loading loading-spinner" /> : "Connect"}
         </button>
       </div>
     </div>

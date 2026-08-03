@@ -4,6 +4,7 @@ import { store } from "../redux/store";
 import { logout } from "../redux/slices/authSlice";
 import { clearNotifications } from "../redux/slices/notificationSlice";
 
+//api.get api() factory func
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
@@ -14,6 +15,7 @@ const api = axios.create({
 
 let isRefreshing = false;
 
+//[{resolve, reject}, {resolve, resject}]
 let failedQueue: {
   resolve: (value?: unknown) => void;
   reject: (reason?: unknown) => void;
@@ -35,8 +37,8 @@ api.interceptors.response.use(
   (response) => response,
 
   async (error) => {
-    console.count("401 interceptor");
-    console.log(error.config?.url);
+    //console.count("401 interceptor");
+    //console.log(error.config?.url);
 
     const originalRequest = error.config;
 
@@ -48,12 +50,15 @@ api.interceptors.response.use(
     ) {
       originalRequest._retry = true;
 
+      //B C D E
       if (isRefreshing) {
+        //create new promise, when resolve, execute this request again
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then(() => api(originalRequest));
       }
 
+      //A
       isRefreshing = true;
 
       try {
