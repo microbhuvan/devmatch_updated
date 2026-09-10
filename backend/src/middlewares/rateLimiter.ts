@@ -1,8 +1,8 @@
 import rateLimit from "express-rate-limit";
 
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  windowMs: 3 * 60 * 1000, // 3 minutes
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -11,7 +11,7 @@ export const authLimiter = rateLimit({
 });
 
 export const refreshLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 3 * 60 * 1000,
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
@@ -21,7 +21,7 @@ export const refreshLimiter = rateLimit({
 });
 
 export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 3 * 60 * 1000,
   max: 200,
   standardHeaders: true,
   legacyHeaders: false,

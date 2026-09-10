@@ -144,7 +144,7 @@ const Chat = ({ conversation, onBack }: ChatProps) => {
       "send_message",
       { conversationId, content: input.trim() },
       (response: { success: any; message: any }) => {
-        console.log("SEND ACK:", response);
+        //console.log("SEND ACK:", response);
 
         setSending(false);
 
