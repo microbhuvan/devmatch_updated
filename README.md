@@ -121,7 +121,7 @@ The payment flow includes:
 
 ## Project Structure
 
-
+```text
 DevMatch
 ├── frontend
 │   └── src
