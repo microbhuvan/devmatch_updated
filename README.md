@@ -119,6 +119,36 @@ The payment flow includes:
 4. Recording the verified payment
 5. Updating the user's premium status
 
+   Clone the repository
+git clone <repository-url>
+cd devmatch
+Backend
+cd backend
+npm install
+npm run dev
+
+Create a .env file in the backend:
+
+PORT=3000
+MONGO_URL=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+CLIENT_URL=http://localhost:5173
+
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+RESEND_API_KEY=your_resend_api_key
+
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+Frontend
+cd frontend
+npm install
+npm run dev
+
+Configure the frontend environment variables required by the application.
+
 ## Project Structure
 
 ```text
