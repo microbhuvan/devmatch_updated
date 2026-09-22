@@ -12,9 +12,9 @@ The application also includes developer profiles, search, authentication, passwo
 - Session management and logout
 - Logout from all active sessions
 - Password change and password reset
-- Developer profiles with skills, bio, profile image and social links
+- Developer profiles with skills, bio, profile image, and social links
 - Developer discovery feed
-- Send, accept, reject, ignore and cancel connection requests
+- Send, accept, reject, ignore, and cancel connection requests
 - Manage accepted connections
 - Real-time one-to-one chat
 - Real-time group chat
@@ -96,7 +96,7 @@ Users can:
 - Join conversation rooms
 - Persist messages in MongoDB
 
-Messages support text, image and file message types.
+Messages support text, image, and file message types.
 
 ### Developer Search
 
@@ -119,17 +119,67 @@ The payment flow includes:
 4. Recording the verified payment
 5. Updating the user's premium status
 
-   Clone the repository
+## Project Structure
+
+```text
+DevMatch/
+├── frontend/
+│   └── src/
+│       ├── api/
+│       ├── components/
+│       ├── hooks/
+│       ├── layout/
+│       ├── pages/
+│       ├── redux/
+│       ├── routes/
+│       ├── services/
+│       ├── socket/
+│       └── types/
+│
+└── backend/
+    └── src/
+        ├── config/
+        ├── controllers/
+        ├── middlewares/
+        ├── models/
+        ├── routes/
+        ├── services/
+        ├── socket/
+        ├── types/
+        ├── utils/
+        └── validators/
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js
+- MongoDB
+- Cloudinary account
+- Razorpay account
+- Resend account
+
+### Clone the Repository
+
+```bash
 git clone <repository-url>
 cd devmatch
-Backend
+```
+
+### Backend Setup
+
+```bash
 cd backend
 npm install
 npm run dev
+```
 
-Create a .env file in the backend:
+Create a `.env` file inside the `backend` directory:
 
+```env
 PORT=3000
+
 MONGO_URL=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 CLIENT_URL=http://localhost:5173
@@ -142,39 +192,59 @@ RESEND_API_KEY=your_resend_api_key
 
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-Frontend
+```
+
+### Frontend Setup
+
+Open a new terminal:
+
+```bash
 cd frontend
 npm install
 npm run dev
+```
 
 Configure the frontend environment variables required by the application.
 
-## Project Structure
+## Security
 
-```text
-DevMatch
-├── frontend
-│   └── src
-│       ├── api
-│       ├── components
-│       ├── hooks
-│       ├── layout
-│       ├── pages
-│       ├── redux
-│       ├── routes
-│       ├── services
-│       ├── socket
-│       └── types
-│
-└── backend
-    └── src
-        ├── config
-        ├── controllers
-        ├── middlewares
-        ├── models
-        ├── routes
-        ├── services
-        ├── socket
-        ├── types
-        ├── utils
-        └── validators
+- JWT-based authentication
+- HTTP-only cookies
+- Password hashing with bcrypt
+- Authentication middleware
+- CORS configuration
+- Helmet security headers
+- API rate limiting
+- Refresh-token session tracking
+- Password reset tokens
+
+## Database
+
+MongoDB with Mongoose is used for persistent application data.
+
+The application contains models for:
+
+- Users
+- Profiles
+- Connection requests
+- Conversations
+- Messages
+- Sessions
+- Payments
+- Password reset tokens
+
+## Project Highlights
+
+DevMatch was built as a practical full-stack application covering:
+
+- Authentication and session management
+- REST API development
+- MongoDB data modeling
+- Real-time communication with Socket.IO
+- React and TypeScript development
+- Redux state management
+- File uploads
+- Payment integration
+- Password recovery
+- Protected routes
+- Third-party service integration
