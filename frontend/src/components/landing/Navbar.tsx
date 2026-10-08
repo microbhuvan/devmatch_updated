@@ -22,9 +22,9 @@ const Navbar = () => {
           <a href="#how-it-works" className="transition hover:text-primary">
             How It Works
           </a>
-          <Link to="/about" className="transition hover:text-primary">
+          <a href="#about" className="transition hover:text-primary">
             About
-          </Link>
+          </a>
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -66,13 +66,13 @@ const Navbar = () => {
             >
               How It Works
             </a>
-            <Link
-              to="/about"
+            <a
+              href="#about"
               className="btn btn-ghost justify-start"
               onClick={closeMenu}
             >
               About
-            </Link>
+            </a>
             <Link
               to="/login"
               className="btn btn-ghost justify-start"
