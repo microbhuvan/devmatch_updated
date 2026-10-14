@@ -2,9 +2,8 @@ import { Schema, model, Types } from "mongoose";
 
 export interface IPayment {
   userId: Types.ObjectId;
-  razorpayOrderId: string;
-  razorpayPaymentId?: string;
-  razorpaySignature?: string;
+  cashfreeOrderId: string;
+  cashfreePaymentId?: string;
   amount: number;
   currency: string;
   status: "created" | "paid" | "failed";
@@ -20,21 +19,17 @@ const paymentSchema = new Schema<IPayment>(
       index: true,
     },
 
-    razorpayOrderId: {
+    cashfreeOrderId: {
       type: String,
       required: true,
       unique: true,
       index: true,
     },
 
-    razorpayPaymentId: {
+    cashfreePaymentId: {
       type: String,
       unique: true,
       sparse: true,
-    },
-
-    razorpaySignature: {
-      type: String,
     },
 
     amount: {

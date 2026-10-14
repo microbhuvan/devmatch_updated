@@ -1,72 +1,151 @@
+import { useState } from "react";
 import { FaCheck } from "react-icons/fa";
 import { Crown } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { createOrder, verifyPayment } from "../services/payment.service";
+import { createOrder, getPaymentStatus } from "../services/payment.service";
 import { getCurrentUser } from "../services/auth.service";
 import { setUser } from "../redux/slices/authSlice";
 import { useToast } from "../hooks/useToast";
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Cashfree?: (options: { mode: "sandbox" | "production" }) => {
+      checkout: (options: {
+        paymentSessionId: string;
+        redirectTarget?: string;
+      }) => Promise<{
+        error?: { message?: string };
+      }>;
+    };
   }
 }
+
+const wait = (milliseconds: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
 const Upgrade = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const toast = useToast();
 
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const refreshUser = async () => {
+    const response = await getCurrentUser();
+
+    if (!response?.user) {
+      throw new Error("Unable to fetch the current user");
+    }
+
+    dispatch(setUser(response.user));
+    return response.user;
+  };
+
   const handleUpgrade = async () => {
+    if (!/^\d{10}$/.test(phone)) {
+      toast.error("Enter a valid 10-digit phone number.");
+      return;
+    }
+
+    if (!window.Cashfree) {
+      toast.error("Cashfree checkout could not be loaded.");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const order = await createOrder();
+      // 1. Create the order on the backend.
+      const order = await createOrder(phone);
 
-      const options = {
-        key: order.key,
-        amount: order.amount,
-        currency: order.currency,
-        order_id: order.orderId,
+      if (!order?.orderId || !order?.paymentSessionId) {
+        throw new Error("Invalid order response from the backend");
+      }
 
-        name: "DevMatch",
-        description: "DevMatch Premium Membership",
-
-        handler: async (response: any) => {
-          try {
-            await verifyPayment({
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-            });
-
-            const { user } = await getCurrentUser();
-
-            dispatch(setUser(user));
-
-            toast.success("Welcome to DevMatch Premium!");
-
-            navigate("/search");
-          } catch (err) {
-            toast.error("Payment verification failed.");
-          }
-        },
-
-        theme: {
-          color: "#4F46E5",
-        },
-      };
-
-      const razorpay = new window.Razorpay(options);
-
-      razorpay.on("payment.failed", () => {
-        toast.error("Payment failed. Please try again.");
+      // 2. Open Cashfree checkout.
+      const cashfree = window.Cashfree({
+        mode:
+          import.meta.env.VITE_CASHFREE_ENV === "production"
+            ? "production"
+            : "sandbox",
       });
 
-      razorpay.open();
-    } catch (err) {
-      console.error(err);
-      toast.error("Unable to start payment.");
+      const checkoutResult = await cashfree.checkout({
+        paymentSessionId: order.paymentSessionId,
+        redirectTarget: "_modal",
+      });
+
+      // Do not trust the checkout result alone.
+      // The backend must confirm the payment.
+      let paymentConfirmed = false;
+
+      for (let attempt = 0; attempt < 15; attempt++) {
+        try {
+          const status = await getPaymentStatus(order.orderId);
+
+          if (status.verified && status.status === "paid") {
+            paymentConfirmed = true;
+            break;
+          }
+
+          if (status.status === "failed") {
+            break;
+          }
+        } catch (error) {
+          // A temporary request failure should not immediately
+          // prevent the next status check.
+          console.warn("Payment status check failed:", error);
+        }
+
+        if (attempt < 14) {
+          await wait(2000);
+        }
+      }
+
+      // 3. Refresh the authenticated user from the backend,
+      // even if polling timed out.
+      const user = await refreshUser();
+
+      // 4. Use the actual account status to decide what happens next.
+      if (user.isPremium) {
+        toast.success(
+          paymentConfirmed
+            ? "Payment verified! Welcome to DevMatch Premium."
+            : "Your DevMatch Premium access is active.",
+        );
+
+        navigate("/search");
+        return;
+      }
+
+      if (paymentConfirmed) {
+        toast.error(
+          "Payment was verified, but premium access has not updated yet. Please refresh your account shortly.",
+        );
+        return;
+      }
+
+      if (checkoutResult?.error) {
+        toast.error(
+          checkoutResult.error.message ||
+            "Payment was not confirmed. Please check your payment status.",
+        );
+        return;
+      }
+
+      toast.error(
+        "Payment is not confirmed yet. Please check again shortly. Do not pay again until you verify the existing transaction.",
+      );
+    } catch (error) {
+      console.error("Cashfree checkout error:", error);
+      toast.error(
+        "Unable to complete the payment flow. Please check your connection and payment status.",
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,8 +192,35 @@ const Upgrade = () => {
         </ul>
 
         <div className="mt-10">
-          <button onClick={handleUpgrade} className="btn btn-primary w-full">
-            Upgrade to Premium
+          <label
+            htmlFor="payment-phone"
+            className="mb-2 block text-sm font-medium"
+          >
+            Mobile number
+          </label>
+
+          <input
+            id="payment-phone"
+            type="tel"
+            inputMode="numeric"
+            maxLength={10}
+            value={phone}
+            onChange={(event) =>
+              setPhone(event.target.value.replace(/\D/g, ""))
+            }
+            placeholder="Enter 10-digit mobile number"
+            className="input input-bordered w-full"
+            disabled={loading}
+          />
+        </div>
+
+        <div className="mt-4">
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className="btn btn-primary w-full"
+          >
+            {loading ? "Processing..." : "Upgrade to Premium"}
           </button>
         </div>
       </div>

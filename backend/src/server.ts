@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express, { Request, Response } from "express";
 import http from "http";
 import cors from "cors";
@@ -24,9 +25,13 @@ import paymentRouter from "./routes/payment.route";
 import searchRouter from "./routes/search.route";
 
 const app = express();
+
 app.set("trust proxy", 1);
+
 const PORT = process.env.PORT || 3000;
+
 const server = http.createServer(app);
+
 const io: AppServer = new Server<
   ClientToServerEvents,
   ServerToClientEvents,
@@ -53,10 +58,23 @@ app.use(
     crossOriginResourcePolicy: false,
   }),
 );
-app.use(express.json());
+
+app.use(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res, next) => {
+    (req as Request & { rawBody?: Buffer }).rawBody = req.body as Buffer;
+    next();
+  },
+);
 app.use(cookieParser());
 
-// Middleware to attach Socket.IO instance to the request object
+// Parse JSON for all other routes.
+app.use(express.json());
+
+app.use(cookieParser());
+
+// Attach Socket.IO to requests.
 app.use((req, res, next) => {
   (req as any).io = io;
   next();

@@ -1,17 +1,14 @@
 import api from "../api/axios";
 
-export async function createOrder() {
-  const response = await api.post("/payment/create_order");
-
+export async function createOrder(phone: string) {
+  const response = await api.post("/payment/create_order", { phone });
   return response.data;
 }
 
-export async function verifyPayment(data: {
-  razorpayOrderId: string;
-  razorpayPaymentId: string;
-  razorpaySignature: string;
-}) {
-  const response = await api.post("/payment/verify_payment", data);
+export async function getPaymentStatus(orderId: string) {
+  const response = await api.get(
+    `/payment/status/${encodeURIComponent(orderId)}`,
+  );
 
   return response.data;
 }
