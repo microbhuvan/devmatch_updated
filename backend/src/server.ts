@@ -72,8 +72,6 @@ app.use(cookieParser());
 // Parse JSON for all other routes.
 app.use(express.json());
 
-app.use(cookieParser());
-
 // Attach Socket.IO to requests.
 app.use((req, res, next) => {
   (req as any).io = io;
